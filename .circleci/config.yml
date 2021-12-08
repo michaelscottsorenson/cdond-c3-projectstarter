@@ -31,7 +31,7 @@ commands:
             #  Add revert code here. You can find this in the Getting Started section.
               exit 1
             fi
-            
+
 jobs:
   build-frontend:
     docker:
@@ -72,7 +72,7 @@ jobs:
       # Checkout code from git
       # Restore from cache
       # Your job code here
-                
+
   test-backend:
     docker:
       # Docker image here
@@ -80,7 +80,7 @@ jobs:
       # Checkout code from git
       # Restore from cache
       # Your job code here
-            
+
   scan-frontend:
     docker:
       # Docker image here
@@ -261,7 +261,7 @@ cleanup:
             then
               # your code here
             fi
-            
+
 
 workflows:
   default:
