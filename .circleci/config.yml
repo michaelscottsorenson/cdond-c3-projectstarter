@@ -15,16 +15,16 @@ commands:
             aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
             aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
 
-  notify-on-failure:
-    description: sends a slack message when the pipeline fails
-    steps:
-      - run:
-          when: on_fail
-          command: yum install -y jq
-      - slack/notify:
-          channel: https://michaelscottsorenson.slack.com/archives/C02Q9MX36R1
-          event: fail
-          template: basic_fail_1
+  # notify-on-failure:
+  #   description: sends a slack message when the pipeline fails
+  #   steps:
+  #     - run:
+  #         when: on_fail
+  #         command: yum install -y jq
+  #     - slack/notify:
+  #         channel: https://michaelscottsorenson.slack.com/archives/C02Q9MX36R1
+  #         event: fail
+  #         template: basic_fail_1
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -60,7 +60,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-      - notify-on-failure
+      # - notify-on-failure
 
   build-backend:
     docker:
@@ -78,7 +78,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-      - notify-on-failure
+      # - notify-on-failure
 
   test-frontend:
     docker:
@@ -92,7 +92,7 @@ jobs:
           command: |
             cd frontend
             npm run test
-      - notify-on-failure
+      # - notify-on-failure
 
   test-backend:
     docker:
@@ -106,7 +106,7 @@ jobs:
           command: |
             cd backend
             npm run test
-      - notify-on-failure
+      # - notify-on-failure
 
   scan-frontend:
     docker:
@@ -121,7 +121,7 @@ jobs:
             cd frontend
             npm i
             npm audit --audit-level=critical
-      - notify-on-failure
+      # - notify-on-failure
 
   scan-backend:
     docker:
@@ -136,7 +136,7 @@ jobs:
             cd backend
             npm i
             npm audit --audit-level=critical
-      - notify-on-failure
+      # - notify-on-failure
 
   deploy-infrastructure:
     docker:
@@ -173,7 +173,7 @@ jobs:
           paths:
             - inventory.txt
       - destroy-environment
-      - notify-on-failure
+      # - notify-on-failure
 
   configure-infrastructure:
    docker:
@@ -194,7 +194,7 @@ jobs:
           name: Configure server
           command: ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment
-      - notify-on-failure
+      # - notify-on-failure
 
   run-migrations:
     docker:
@@ -215,7 +215,7 @@ jobs:
               curl -H "Content-Type: text/plain" -H "token: f9de6f8d-265f-462f-a766-4fb174338787" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             fi
       - destroy-environment
-      - notify-on-failure
+      # - notify-on-failure
 
   # Job to use a node image to build both the front and backend for later stages
   build-deployment:
@@ -235,20 +235,25 @@ jobs:
           name: Build frontend objects
           command: |
             cd frontend
+            npm i
             npm run build
+            tar -czvf ui.tar.gz dist
+            mv ui.tar.gz ~/
       - run:
           name: Build backend objects
           command: |
             cd backend
+            npm i
             npm run build
             cd ..
             tar -czvf server.tar.gz backend
-            mv server.tar.gz ~/server.tar.gz
+            mv server.tar.gz ~/
       - persist_to_workspace:
           root: ~/
           paths:
             - server.tar.gz
-      - notify-on-failure
+            - ui.tar.gz
+      # - notify-on-failure
 
   deploy-frontend:
     docker:
@@ -263,7 +268,7 @@ jobs:
           command: |
             aws s3 cp frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment
-      - notify-on-failure
+      # - notify-on-failure
 
   deploy-backend:
     docker:
@@ -286,7 +291,7 @@ jobs:
             cat ~/inventory.txt
             ansible-playbook -i ~/inventory.txt deploy-backend.yml
       - destroy-environment
-      - notify-on-failure
+      # - notify-on-failure
 
   # smoke-test:
   #   docker:
