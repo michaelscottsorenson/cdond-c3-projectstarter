@@ -15,6 +15,14 @@ commands:
             aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
             aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
 
+  notify-on-failure:
+    description: sends a slack message when the pipeline fails
+    steps:
+      - slack/notify:
+          channel: https://michaelscottsorenson.slack.com/archives/D02Q9QBAHQT
+          event: fail
+          template: basic_fail_1
+
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     #parameters:
@@ -51,6 +59,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
+      - notify-on-failure
 
   build-backend:
     docker:
@@ -68,6 +77,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+      - notify-on-failure
 
   test-frontend:
     docker:
@@ -81,6 +91,7 @@ jobs:
           command: |
             cd frontend
             npm run test
+      - notify-on-failure
 
   test-backend:
     docker:
@@ -94,6 +105,7 @@ jobs:
           command: |
             cd backend
             npm run test
+      - notify-on-failure
 
   scan-frontend:
     docker:
@@ -108,6 +120,7 @@ jobs:
             cd frontend
             npm i
             npm audit --audit-level=critical
+      - notify-on-failure
 
   scan-backend:
     docker:
@@ -122,6 +135,7 @@ jobs:
             cd backend
             npm i
             npm audit --audit-level=critical
+      - notify-on-failure
 
   deploy-infrastructure:
     docker:
@@ -155,31 +169,30 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
+            - .circleci/ansible/inventory.txt
       - destroy-environment
-      - slack/notify:
-          channel: CircleCI
-          event: fail
-          template: basic_fail_1
+      - notify-on-failure
 
-  # configure-infrastructure:
-  #  docker:
-  #    # Docker image here that supports Ansible
-  #  steps:
-  #    # Checkout code from git
-  #    # Add ssh keys with fingerprint
-  #    # attach workspace
-  #    - run:
-  #        name: Install dependencies
-  #        command: |
-  #          # Your code here
-  #          exit 1
-  #    - run:
-  #        name: Configure server
-  #        command: |
-  #          # Your code here
-  #          exit 1
-  #    # Here's where you will add some code to rollback on failure      
+  configure-infrastructure:
+   docker:
+      - image: python:3.7-alpine3.11
+   steps:
+      - checkout
+      - attach_workspace:
+          at: ~/
+      - add_ssh_keys:
+          fingerprints: ["e4:2b:d9:f9:33:df:41:d0:9a:86:17:f3:00:a4:aa:74"]
+      - run:
+          name: Install dependencies
+          command: apk add --update ansible
+      - run:
+          name: Install aws cli
+          command: pip3 install --no-cache-dir awscli
+      - run:
+          name: Configure server
+          command: ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+      - destroy-environment
+      - notify-on-failure
 
   # run-migrations:
   #   docker:
@@ -312,8 +325,8 @@ workflows:
           filters:
             branches:
               only: [master]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
