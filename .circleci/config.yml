@@ -22,7 +22,7 @@ commands:
           when: on_fail
           command: yum install -y jq
       - slack/notify:
-          channel: https://michaelscottsorenson.slack.com/archives/D02Q9QBAHQT
+          channel: https://michaelscottsorenson.slack.com/archives/C02Q9MX36R1
           event: fail
           template: basic_fail_1
 
@@ -222,6 +222,7 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
+      - checkout
       - attach_workspace:
           at: ~/
       - run:
@@ -242,11 +243,11 @@ jobs:
             npm run build
             cd ..
             tar -czvf server.tar.gz backend
+            mv server.tar.gz ~/server.tar.gz
       - persist_to_workspace:
           root: ~/
           paths:
             - server.tar.gz
-      - destroy-environment
       - notify-on-failure
 
   deploy-frontend:
@@ -279,7 +280,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            mv server.tar.gz .circleci/ansible/roles/deploy
+            mv ~/server.tar.gz .circleci/ansible/roles/deploy
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat ~/inventory.txt
