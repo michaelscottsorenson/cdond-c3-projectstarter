@@ -1,0 +1,18 @@
+- name: Creates directory
+  file:
+    path: ~/web
+    state: directory
+
+- name: Copy index test page
+  template:
+    src: "server.tar.gz"
+    dest: "~/server.tar.gz"
+
+- name: Unarchive server files
+  ansible.builtin.unarchive:
+    src: ~/server.tar.gz
+    dest: ~/web
+
+# - name: Executing node
+#   shell: |
+#     pm2 start ~/web/index.js -f
