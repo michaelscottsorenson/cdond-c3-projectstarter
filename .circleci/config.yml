@@ -355,6 +355,10 @@ jobs:
             cat ~/inventory.txt
             ansible-playbook -i ~/inventory.txt deploy-backend.yml
       # - destroy-environment
+      - run:
+          name: Install slack deps
+          when: on_fail
+          command: apk add --update curl jq
       - slack/notify:
           event: fail
           template: basic_fail_1

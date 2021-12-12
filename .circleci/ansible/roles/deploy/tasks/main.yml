@@ -3,9 +3,9 @@
     path: ~/web
     state: directory
 
-- name: Copy index test page
+- name: Copy server archive
   ansible.builtin.copy:
-    src: ~/server.tar.gz
+    src: server.tar.gz
     dest: ~/server.tar.gz
 
 - name: Unarchive server files
