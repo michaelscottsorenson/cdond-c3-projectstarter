@@ -60,7 +60,13 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-      - notify-on-failure
+      - run:
+          name: Install slack deps
+          when: on_fail
+          command: yum install -y jq
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   build-backend:
     docker:
@@ -78,7 +84,13 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-      - notify-on-failure
+      - run:
+          name: Install slack deps
+          when: on_fail
+          command: yum install -y jq
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   test-frontend:
     docker:
@@ -92,7 +104,13 @@ jobs:
           command: |
             cd frontend
             npm run test
-      - notify-on-failure
+      - run:
+          name: Install slack deps
+          when: on_fail
+          command: yum install -y jq
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   test-backend:
     docker:
@@ -106,7 +124,13 @@ jobs:
           command: |
             cd backend
             npm run test
-      - notify-on-failure
+      - run:
+          name: Install slack deps
+          when: on_fail
+          command: yum install -y jq
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   scan-frontend:
     docker:
@@ -121,7 +145,13 @@ jobs:
             cd frontend
             npm i
             npm audit --audit-level=critical
-      - notify-on-failure
+      - run:
+          name: Install slack deps
+          when: on_fail
+          command: yum install -y jq
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   scan-backend:
     docker:
@@ -136,7 +166,13 @@ jobs:
             cd backend
             npm i
             npm audit --audit-level=critical
-      - notify-on-failure
+      - run:
+          name: Install slack deps
+          when: on_fail
+          command: yum install -y jq
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   deploy-infrastructure:
     docker:
@@ -172,8 +208,14 @@ jobs:
           root: ~/
           paths:
             - inventory.txt
-      - destroy-environment
-      - notify-on-failure
+      # - destroy-environment ## TODO: will I need to clean up parital failures here?
+      - run:
+          name: Install slack deps
+          when: on_fail
+          command: yum install -y jq
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   configure-infrastructure:
    docker:
@@ -193,8 +235,14 @@ jobs:
       - run:
           name: Configure server
           command: ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml
-      - destroy-environment
-      - notify-on-failure
+      # - destroy-environment
+      - run:
+          name: Install slack deps
+          when: on_fail
+          command: apk add --update curl jq
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   run-migrations:
     docker:
@@ -214,8 +262,10 @@ jobs:
             then
               curl -H "Content-Type: text/plain" -H "token: f9de6f8d-265f-462f-a766-4fb174338787" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             fi
-      - notify-on-failure
       # - destroy-environment
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   # Job to use a node image to build both the front and backend for later stages
   build-deployment:
@@ -253,7 +303,13 @@ jobs:
           paths:
             - server.tar.gz
             - ui.tar.gz
-      - notify-on-failure
+      - run:
+          name: Install slack deps
+          when: on_fail
+          command: yum install -y jq
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   deploy-frontend:
     docker:
@@ -269,8 +325,14 @@ jobs:
             tar -xzf ui.tar.gz
             ls
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      - destroy-environment
-      - notify-on-failure
+      # - destroy-environment
+      - run:
+          name: Install slack deps
+          when: on_fail
+          command: yum install -y jq
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   deploy-backend:
     docker:
@@ -292,8 +354,10 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat ~/inventory.txt
             ansible-playbook -i ~/inventory.txt deploy-backend.yml
-      - destroy-environment
-      - notify-on-failure
+      # - destroy-environment
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   # smoke-test:
   #   docker:

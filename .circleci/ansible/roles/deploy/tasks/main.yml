@@ -4,9 +4,9 @@
     state: directory
 
 - name: Copy index test page
-  template:
-    src: "server.tar.gz"
-    dest: "~/server.tar.gz"
+  ansible.builtin.copy:
+    src: ~/server.tar.gz
+    dest: ~/server.tar.gz
 
 - name: Unarchive server files
   ansible.builtin.unarchive:
