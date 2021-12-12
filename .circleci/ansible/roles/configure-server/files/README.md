@@ -1,0 +1,1 @@
+this file exists to create a directory for the database environment variables to be placed in.

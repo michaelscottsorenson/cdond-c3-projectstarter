@@ -28,3 +28,6 @@
     global: yes
     production: yes
     state: present
+
+- name: "set environment variables"
+  ansible.builtin.shell: files/database_env.sh
