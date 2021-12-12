@@ -214,7 +214,7 @@ jobs:
             then
               curl -H "Content-Type: text/plain" -H "token: f9de6f8d-265f-462f-a766-4fb174338787" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             fi
-      - destroy-environment
+      # - destroy-environment
       # - notify-on-failure
 
   # Job to use a node image to build both the front and backend for later stages
@@ -260,13 +260,15 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - run: yum install -y tar gzip
-      - checkout
       - attach_workspace:
           at: ~/
       - run:
           name: Deploy frontend objects
           command: |
-            aws s3 cp frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            cd ~/
+            tar -xzf ui.tar.gz
+            ls
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment
       # - notify-on-failure
 
