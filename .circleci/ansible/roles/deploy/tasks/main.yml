@@ -5,7 +5,7 @@
 
 - name: Copy server archive
   ansible.builtin.copy:
-    src: server.tar.gz
+    src: files/server.tar.gz
     dest: ~/server.tar.gz
 
 - name: Unarchive server files
