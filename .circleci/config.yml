@@ -218,9 +218,9 @@ jobs:
           template: basic_fail_1
 
   configure-infrastructure:
-   docker:
+    docker:
       - image: python:3.7-alpine3.11
-   steps:
+    steps:
       - checkout
       - attach_workspace:
           at: ~/
@@ -232,6 +232,19 @@ jobs:
       - run:
           name: Install aws cli
           command: pip3 install --no-cache-dir awscli
+      - run:
+          name: create environment variables
+          command: |
+            echo "#!/bin/bash" > .circleci/ansible/roles/configure-server/files/database_env.sh
+            echo "export TYPEORM_CONNECTION=$TYPEORM_CONNECTION" >> .circleci/ansible/roles/configure-server/files/database_env.sh
+            echo "export TYPEORM_ENTITIES=$TYPEORM_ENTITIES" >> .circleci/ansible/roles/configure-server/files/database_env.sh
+            echo "export TYPEORM_HOST=$TYPEORM_HOST" >> .circleci/ansible/roles/configure-server/files/database_env.sh
+            echo "export TYPEORM_PORT=5432" >> .circleci/ansible/roles/configure-server/files/database_env.sh
+            echo "export TYPEORM_USERNAME=$TYPEORM_USERNAME" >> .circleci/ansible/roles/configure-server/files/database_env.sh
+            echo "export TYPEORM_PASSWORD=$TYPEORM_PASSWORD" >> .circleci/ansible/roles/configure-server/files/database_env.sh
+            echo "export TYPEORM_DATABASE=$TYPEORM_DATABASE" >> .circleci/ansible/roles/configure-server/files/database_env.sh
+            echo "export TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS" >> .circleci/ansible/roles/configure-server/files/database_env.sh
+            echo "export TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR" >> .circleci/ansible/roles/configure-server/files/database_env.sh
       - run:
           name: Configure server
           command: ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml
