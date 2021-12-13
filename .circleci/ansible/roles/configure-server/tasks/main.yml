@@ -29,8 +29,14 @@
     production: yes
     state: present
 
-- name: "Run set database environment variables"
-  ansible.builtin.shell: "files/database_env.sh"
+# - name: Unarchive server files
+#   ansible.builtin.copy:
+#     src: files/database_env.sh
+#     dest: ~/
+#     owner: ubuntu
+
+# - name: "Run set database environment variables"
+#   ansible.builtin.shell: "files/database_env.sh"
 
 # - name: "set database environment variables"
 #   shell: |
