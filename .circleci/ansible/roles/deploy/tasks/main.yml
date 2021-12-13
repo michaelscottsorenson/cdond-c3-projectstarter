@@ -1,14 +1,26 @@
 
-# - name: Copy server archive
-#   ansible.builtin.copy:
-#     src: files/server.tar.gz
-#     dest: ~/server.tar.gz
-
 - name: Unarchive server files
   ansible.builtin.unarchive:
     src: files/server.tar.gz
     dest: ~/
 
-# - name: Executing node
+## TODO set environment variables before starting the application
+
+# - name: "Run set database environment variables"
+#   ansible.builtin.shell: "files/database_env.sh"
+
+# - name: "set database environment variables"
 #   shell: |
-#     pm2 start ~/web/index.js -f
+#     export TYPEORM_CONNECTION="{{ lookup('env', 'TYPEORM_CONNECTION')}}"
+#     export TYPEORM_ENTITIES="{{ lookup('env', 'TYPEORM_ENTITIES')}}"
+#     export TYPEORM_HOST="{{ lookup('env', 'TYPEORM_HOST')}}"
+#     export TYPEORM_PORT=5432
+#     export TYPEORM_USERNAME="{{ lookup('env', 'TYPEORM_USERNAME')}}"
+#     export TYPEORM_PASSWORD="{{ lookup('env', 'TYPEORM_PASSWORD')}}"
+#     export TYPEORM_DATABASE="{{ lookup('env', 'TYPEORM_DATABASE')}}"
+#     export TYPEORM_MIGRATIONS="{{ lookup('env', 'TYPEORM_MIGRATIONS')}}"
+#     export TYPEORM_MIGRATIONS_DIR="{{ lookup('env', 'TYPEORM_MIGRATIONS_DIR')}}"
+
+- name: Starting the Application
+  shell: |
+    pm2 start npm -- start

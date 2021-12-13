@@ -46,7 +46,7 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node:16
     steps:
       - checkout
       - restore_cache:
@@ -70,7 +70,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node:16
     steps:
       - checkout
       - restore_cache:
@@ -94,7 +94,7 @@ jobs:
 
   test-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node:16
     steps:
       - checkout
       - restore_cache:
@@ -114,7 +114,7 @@ jobs:
 
   test-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node:16
     steps:
       - checkout
       - restore_cache:
@@ -134,7 +134,7 @@ jobs:
 
   scan-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node:16
     steps:
       - checkout
       - restore_cache:
@@ -155,7 +155,7 @@ jobs:
 
   scan-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node:16
     steps:
       - checkout
       - restore_cache:
@@ -262,7 +262,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/node:16
     steps:
       - checkout
       - run:
@@ -286,7 +286,7 @@ jobs:
   # Job to use a node image to build both the front and backend for later stages
   build-deployment:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node:16
     steps:
       - checkout
       - attach_workspace:
