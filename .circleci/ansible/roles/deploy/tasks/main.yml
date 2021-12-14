@@ -5,5 +5,7 @@
     dest: ~/
 
 - name: Starting the Application
+  args:
+    chdir: /home/ubuntu/backend
   shell: |
-    pm2 start npm -- start
+    pm2 start ./node_modules/.bin/ts-node -- -r tsconfig-paths/register -r dotenv/config src/main.ts dotenv_config_path=./production.env
