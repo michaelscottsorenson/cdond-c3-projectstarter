@@ -16,16 +16,16 @@ commands:
             aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
             aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
 
-  notify-on-failure:
-    description: sends a slack message when the pipeline fails
-    steps:
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
-      ## TODO: I'm not certain I need this.
-      # - run:
-      #     when: on_fail
-      #     command: yum install -y jq
+  # notify-on-failure:
+  #   description: sends a slack message when the pipeline fails
+  #   steps:
+  #     - slack/notify:
+  #         event: fail
+  #         template: basic_fail_1
+  #     ## TODO: I'm not certain I need this.
+  #     # - run:
+  #     #     when: on_fail
+  #     #     command: yum install -y jq
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -65,9 +65,9 @@ jobs:
           name: Install slack deps
           when: on_fail
           command: yum install -y jq
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1
 
   build-backend:
     docker:
@@ -89,9 +89,9 @@ jobs:
           name: Install slack deps
           when: on_fail
           command: yum install -y jq
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1
 
   test-frontend:
     docker:
@@ -109,9 +109,9 @@ jobs:
           name: Install slack deps
           when: on_fail
           command: yum install -y jq
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1
 
   test-backend:
     docker:
@@ -129,9 +129,9 @@ jobs:
           name: Install slack deps
           when: on_fail
           command: yum install -y jq
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1
 
   scan-frontend:
     docker:
@@ -150,9 +150,9 @@ jobs:
           name: Install slack deps
           when: on_fail
           command: yum install -y jq
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1
 
   scan-backend:
     docker:
@@ -171,9 +171,9 @@ jobs:
           name: Install slack deps
           when: on_fail
           command: yum install -y jq
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1
 
   deploy-infrastructure:
     docker:
@@ -214,9 +214,9 @@ jobs:
           name: Install slack deps
           when: on_fail
           command: yum install -y jq
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1
 
   configure-infrastructure:
     docker:
@@ -241,9 +241,9 @@ jobs:
           name: Install slack deps
           when: on_fail
           command: apk add --update curl jq
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1
 
   run-migrations:
     docker:
@@ -264,9 +264,9 @@ jobs:
               curl -H "Content-Type: text/plain" -H "token: f9de6f8d-265f-462f-a766-4fb174338787" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             fi
       # - destroy-environment
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1
 
   # Job to use a node image to build both the front and backend for later stages
   build-deployment:
@@ -315,9 +315,9 @@ jobs:
           name: Install slack deps
           when: on_fail
           command: yum install -y jq
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1
 
   deploy-frontend:
     docker:
@@ -338,9 +338,9 @@ jobs:
           name: Install slack deps
           when: on_fail
           command: yum install -y jq
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1
 
   deploy-backend:
     docker:
@@ -367,9 +367,9 @@ jobs:
           name: Install slack deps
           when: on_fail
           command: apk add --update curl jq
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1
 
   smoke-test:
     docker:
@@ -409,7 +409,7 @@ jobs:
           name: install aws-cli
           when: on_fail
           command: apk add --update aws-cli
-      - destroy-environment
+      # - destroy-environment
 
   # cloudfront-update:
   #   docker:
