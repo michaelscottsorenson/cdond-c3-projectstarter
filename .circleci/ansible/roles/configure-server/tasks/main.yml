@@ -17,7 +17,7 @@
 - name: Download NodeJS source
   become: yes
   get_url:
-    url: https://deb.nodesource.com/setup_16.x
+    url: https://deb.nodesource.com/setup_13.x
     dest: /tmp/nodesource_setup.sh
     mode: 100
 
