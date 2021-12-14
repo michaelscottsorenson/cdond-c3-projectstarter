@@ -12,6 +12,7 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
+            aws s3 rb "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --force
             aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
             aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -232,22 +233,6 @@ jobs:
       - run:
           name: Install aws cli
           command: pip3 install --no-cache-dir awscli
-      # - run:
-      #     name: create environment variables
-      #     command: |
-      #       echo "#!/bin/bash" > .circleci/ansible/roles/configure-server/files/database_env.sh
-      #       echo "export TYPEORM_CONNECTION=$TYPEORM_CONNECTION" >> .circleci/ansible/roles/configure-server/files/database_env.sh
-      #       echo "export TYPEORM_ENTITIES=$TYPEORM_ENTITIES" >> .circleci/ansible/roles/configure-server/files/database_env.sh
-      #       echo "export TYPEORM_HOST=$TYPEORM_HOST" >> .circleci/ansible/roles/configure-server/files/database_env.sh
-      #       echo "export TYPEORM_PORT=5432" >> .circleci/ansible/roles/configure-server/files/database_env.sh
-      #       echo "export TYPEORM_USERNAME=$TYPEORM_USERNAME" >> .circleci/ansible/roles/configure-server/files/database_env.sh
-      #       echo "export TYPEORM_PASSWORD=$TYPEORM_PASSWORD" >> .circleci/ansible/roles/configure-server/files/database_env.sh
-      #       echo "export TYPEORM_DATABASE=$TYPEORM_DATABASE" >> .circleci/ansible/roles/configure-server/files/database_env.sh
-      #       echo "export TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS" >> .circleci/ansible/roles/configure-server/files/database_env.sh
-      #       echo "export TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR" >> .circleci/ansible/roles/configure-server/files/database_env.sh
-      # - run:
-      #     name: check for env script
-      #     command: ls -l .circleci/ansible/roles/configure-server/files
       - run:
           name: Configure server
           command: ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml
@@ -292,14 +277,12 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Get backend url
-          command: |
-            export BACKEND_IP=$(tail -n 1 ~/inventory.txt)
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo $API_URL
-      - run:
           name: Build frontend objects
           command: |
+            export BACKEND_IP=$(tail -n 1 ~/inventory.txt)
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            echo $API_URL
+            cat frontend/.env
             cd frontend
             npm i
             npm run build
@@ -388,28 +371,45 @@ jobs:
           event: fail
           template: basic_fail_1
 
-  # smoke-test:
-  #   docker:
-  #     # Lightweight Docker image 
-  #   steps:
-  #     # Checkout code from git
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # your code here
-  #     - run:
-  #         name: Get backend url
-  #         command: |
-  #           # your code here
-  #     - run:
-  #         name: Backend smoke test.
-  #         command: |
-  #           # your code here
-  #     - run:
-  #         name: Frontend smoke test.
-  #         command: |
-  #           # your code here
-  #     # Here's where you will add some code to rollback on failure  
+  smoke-test:
+    docker:
+      - image: alpine:3.15
+    steps:
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update curl gzip tar
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Backend smoke test.
+          command: |
+            export BACKEND_IP=$(tail -n 1 ~/inventory.txt)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+                return 0
+            else
+                return 1
+            fi
+      - run:
+          name: Frontend smoke test.
+          command: |
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"
+            echo ${URL}
+            if curl -s ${URL} | grep "Welcome"
+            then
+                # Change this to 0 after the job fails
+              return 1
+            else
+              return 1
+            fi
+      - run:
+          name: install aws-cli
+          when: on_fail
+          command: apk add --update aws-cli
+      - destroy-environment
 
   # cloudfront-update:
   #   docker:
@@ -498,8 +498,8 @@ workflows:
           context:
             - slack-secrets
           requires: [run-migrations, build-deployment]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
       #     requires: [smoke-test]
       # - cleanup:
