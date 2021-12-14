@@ -311,15 +311,15 @@ jobs:
             cd backend
             npm i
             npm run build
-            TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> production.env
-            TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> production.env
-            TYPEORM_HOST=$TYPEORM_HOST >> production.env
-            TYPEORM_PORT=5432 >> production.env
-            TYPEORM_USERNAME=$TYPEORM_USERNAME >> production.env
-            TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> production.env
-            TYPEORM_DATABASE=$TYPEORM_DATABASE >> production.env
-            TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> production.env
-            TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> production.env
+            echo "TYPEORM_CONNECTION=$TYPEORM_CONNECTION" >> production.env
+            echo "TYPEORM_ENTITIES=$TYPEORM_ENTITIES" >> production.env
+            echo "TYPEORM_HOST=$TYPEORM_HOST" >> production.env
+            echo "TYPEORM_PORT=5432" >> production.env
+            echo "TYPEORM_USERNAME=$TYPEORM_USERNAME" >> production.env
+            echo "TYPEORM_PASSWORD=$TYPEORM_PASSWORD" >> production.env
+            echo "TYPEORM_DATABASE=$TYPEORM_DATABASE" >> production.env
+            echo "TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS" >> production.env
+            echo "TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR" >> production.env
             cd ..
             tar -czvf server.tar.gz backend
             mv server.tar.gz ~/
