@@ -5,6 +5,15 @@ orbs:
   slack: circleci/slack@4.5.1
 
 commands:
+  install-dependencies:
+    description: Installs the dependencies for aws and ansible
+    steps:
+      - run:
+          name: Install deps
+          command: |
+            sudo apt-get update
+            sudo apt-get install awscli ansible
+
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     steps:
@@ -47,11 +56,6 @@ jobs:
     docker:
       - image: cimg/node:13.8
     steps:
-      - run:
-          name: Install deps
-          command: |
-            apt-get update
-            apt-get install awscli ansible
       - checkout
       - restore_cache:
           keys: [frontend-build]
@@ -69,11 +73,6 @@ jobs:
     docker:
       - image: cimg/node:13.8
     steps:
-      - run:
-          name: Install deps
-          command: |
-            apt-get update
-            apt-get install awscli ansible
       - checkout
       - restore_cache:
           keys: [backend-build]
@@ -91,11 +90,6 @@ jobs:
     docker:
       - image: cimg/node:13.8
     steps:
-      - run:
-          name: Install deps
-          command: |
-            apt-get update
-            apt-get install awscli ansible
       - checkout
       - restore_cache:
           keys: [frontend-build]
@@ -109,11 +103,6 @@ jobs:
     docker:
       - image: cimg/node:13.8
     steps:
-      - run:
-          name: Install deps
-          command: |
-            apt-get update
-            apt-get install awscli ansible
       - checkout
       - restore_cache:
           keys: [backend-build]
@@ -127,11 +116,6 @@ jobs:
     docker:
       - image: cimg/node:13.8
     steps:
-      - run:
-          name: Install deps
-          command: |
-            apt-get update
-            apt-get install awscli ansible
       - checkout
       - restore_cache:
           keys: [frontend-build]
@@ -146,11 +130,6 @@ jobs:
     docker:
       - image: cimg/node:13.8
     steps:
-      - run:
-          name: Install deps
-          command: |
-            apt-get update
-            apt-get install awscli ansible
       - checkout
       - restore_cache:
           keys: [backend-build]
@@ -165,11 +144,7 @@ jobs:
     docker:
       - image: cimg/node:13.8
     steps:
-      - run:
-          name: Install deps
-          command: |
-            apt-get update
-            apt-get install awscli ansible
+      - install-dependencies
       - checkout
       - run:
           name: Ensure back-end infrastructure exists
@@ -205,11 +180,7 @@ jobs:
     docker:
       - image: cimg/node:13.8
     steps:
-      - run:
-          name: Install deps
-          command: |
-            apt-get update
-            apt-get install awscli ansible
+      - install-dependencies
       - checkout
       - attach_workspace:
           at: ~/
@@ -230,11 +201,7 @@ jobs:
     docker:
       - image: cimg/node:13.8
     steps:
-      - run:
-          name: Install deps
-          command: |
-            apt-get update
-            apt-get install awscli ansible
+      - install-dependencies
       - checkout
       - run:
           name: Run migrations
@@ -257,11 +224,7 @@ jobs:
     docker:
       - image: cimg/node:13.8
     steps:
-      - run:
-          name: Install deps
-          command: |
-            apt-get update
-            apt-get install awscli ansible
+      - install-dependencies
       - checkout
       - attach_workspace:
           at: ~/
@@ -307,11 +270,7 @@ jobs:
     docker:
       - image: cimg/node:13.8
     steps:
-      - run:
-          name: Install deps
-          command: |
-            apt-get update
-            apt-get install awscli ansible
+      - install-dependencies
       - attach_workspace:
           at: ~/
       - run:
@@ -328,11 +287,7 @@ jobs:
     docker:
       - image: cimg/node:13.8
     steps:
-      - run:
-          name: Install deps
-          command: |
-            apt-get update
-            apt-get install awscli ansible
+      - install-dependencies
       - checkout
       - attach_workspace:
           at: ~/
@@ -353,11 +308,7 @@ jobs:
     docker:
       - image: cimg/node:13.8
     steps:
-      - run:
-          name: Install deps
-          command: |
-            apt-get update
-            apt-get install awscli ansible
+      - install-dependencies
       - attach_workspace:
           at: ~/
       - run:
