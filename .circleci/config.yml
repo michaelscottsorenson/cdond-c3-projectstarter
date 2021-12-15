@@ -47,7 +47,7 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: circleci/node:16
+      - image: circleci/node:13.8
     steps:
       - checkout
       - restore_cache:
@@ -61,10 +61,10 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-      - run:
-          name: Install slack deps
-          when: on_fail
-          command: yum install -y jq
+      # - run:
+      #     name: Install slack deps
+      #     when: on_fail
+      #     command: yum install -y jq
       # - slack/notify:
       #     event: fail
       #     template: basic_fail_1
@@ -85,10 +85,10 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-      - run:
-          name: Install slack deps
-          when: on_fail
-          command: yum install -y jq
+      # - run:
+      #     name: Install slack deps
+      #     when: on_fail
+      #     command: yum install -y jq
       # - slack/notify:
       #     event: fail
       #     template: basic_fail_1
@@ -105,10 +105,10 @@ jobs:
           command: |
             cd frontend
             npm run test
-      - run:
-          name: Install slack deps
-          when: on_fail
-          command: yum install -y jq
+      # - run:
+      #     name: Install slack deps
+      #     when: on_fail
+      #     command: yum install -y jq
       # - slack/notify:
       #     event: fail
       #     template: basic_fail_1
@@ -125,10 +125,10 @@ jobs:
           command: |
             cd backend
             npm run test
-      - run:
-          name: Install slack deps
-          when: on_fail
-          command: yum install -y jq
+      # - run:
+      #     name: Install slack deps
+      #     when: on_fail
+      #     command: yum install -y jq
       # - slack/notify:
       #     event: fail
       #     template: basic_fail_1
@@ -167,10 +167,10 @@ jobs:
             cd backend
             npm i
             npm audit --audit-level=critical
-      - run:
-          name: Install slack deps
-          when: on_fail
-          command: yum install -y jq
+      # - run:
+      #     name: Install slack deps
+      #     when: on_fail
+      #     command: yum install -y jq
       # - slack/notify:
       #     event: fail
       #     template: basic_fail_1
@@ -209,11 +209,11 @@ jobs:
           root: ~/
           paths:
             - inventory.txt
-      # - destroy-environment ## TODO: will I need to clean up parital failures here?
-      - run:
-          name: Install slack deps
-          when: on_fail
-          command: yum install -y jq
+      - destroy-environment
+      # - run:
+      #     name: Install slack deps
+      #     when: on_fail
+      #     command: yum install -y jq
       # - slack/notify:
       #     event: fail
       #     template: basic_fail_1
@@ -237,10 +237,10 @@ jobs:
           name: Configure server
           command: ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml
       # - destroy-environment
-      - run:
-          name: Install slack deps
-          when: on_fail
-          command: apk add --update curl jq
+      # - run:
+      #     name: Install slack deps
+      #     when: on_fail
+      #     command: apk add --update curl jq
       # - slack/notify:
       #     event: fail
       #     template: basic_fail_1
@@ -263,7 +263,12 @@ jobs:
             then
               curl -H "Content-Type: text/plain" -H "token: f9de6f8d-265f-462f-a766-4fb174338787" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             fi
-      # - destroy-environment
+      - run:
+          name: Install deps to remove environemt
+          command: |
+            sudo apt-get update
+            sudo apt-get install awscli
+      - destroy-environment
       # - slack/notify:
       #     event: fail
       #     template: basic_fail_1
@@ -312,9 +317,15 @@ jobs:
             - server.tar.gz
             - ui.tar.gz
       - run:
-          name: Install slack deps
-          when: on_fail
-          command: yum install -y jq
+          name: Install deps to remove environemt
+          command: |
+            sudo apt-get update
+            sudo apt-get install awscli
+      - destroy-environment
+      # - run:
+      #     name: Install slack deps
+      #     when: on_fail
+      #     command: yum install -y jq
       # - slack/notify:
       #     event: fail
       #     template: basic_fail_1
@@ -333,11 +344,11 @@ jobs:
             tar -xzf ui.tar.gz
             ls
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      # - destroy-environment
-      - run:
-          name: Install slack deps
-          when: on_fail
-          command: yum install -y jq
+      - destroy-environment
+      # - run:
+      #     name: Install slack deps
+      #     when: on_fail
+      #     command: yum install -y jq
       # - slack/notify:
       #     event: fail
       #     template: basic_fail_1
@@ -363,10 +374,10 @@ jobs:
             cat ~/inventory.txt
             ansible-playbook -i ~/inventory.txt deploy-backend.yml
       # - destroy-environment
-      - run:
-          name: Install slack deps
-          when: on_fail
-          command: apk add --update curl jq
+      # - run:
+      #     name: Install slack deps
+      #     when: on_fail
+      #     command: apk add --update curl jq
       # - slack/notify:
       #     event: fail
       #     template: basic_fail_1
