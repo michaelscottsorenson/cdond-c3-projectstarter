@@ -387,7 +387,7 @@ jobs:
             export BACKEND_IP=$(tail -n 1 ~/inventory.txt)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-            for backoff in {1..5}
+            for backoff in 1 2 3 4 5
             do
               if curl "${API_URL}/api/status" | grep "ok"
               then
