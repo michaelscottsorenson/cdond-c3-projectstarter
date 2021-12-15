@@ -16,6 +16,24 @@ commands:
             aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
             aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
 
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      workflow_id:
+        type: string
+    steps:
+      - run:
+          name: Revert Migrations
+          when: on_fail
+          command: |
+            SUCCESS=$(curl -H "token: f9de6f8d-265f-462f-a766-4fb174338787" --request GET https://api.memstash.io/values/migration_<< parameters.workflow_id >>)
+            if (( $SUCCESS == 1 ));
+            then
+              cd ~/project/backend
+              npm install
+              npm run migration:revert
+            fi
+
   # notify-on-failure:
   #   description: sends a slack message when the pipeline fails
   #   steps:
@@ -27,28 +45,16 @@ commands:
   #     #     when: on_fail
   #     #     command: yum install -y jq
 
-  revert-migrations:
-    description: Revert the last migration if successfully run in the current workflow.
-    steps:
-      - run:
-          name: Revert migrations
-          # Add when this will run
-          command: |
-            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
-            if(( $SUCCESS==1 )); 
-            then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
-            fi
-
 jobs:
   build-frontend:
     docker:
-      - image: circleci/node:13.8
+      - image: cimg/node:13.8
     steps:
+      - run:
+          name: Install deps
+          command: |
+            apt-get update
+            apt-get install awscli ansible
       - checkout
       - restore_cache:
           keys: [frontend-build]
@@ -61,18 +67,16 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-      # - run:
-      #     name: Install slack deps
-      #     when: on_fail
-      #     command: yum install -y jq
-      # - slack/notify:
-      #     event: fail
-      #     template: basic_fail_1
 
   build-backend:
     docker:
-      - image: circleci/node:13.8
+      - image: cimg/node:13.8
     steps:
+      - run:
+          name: Install deps
+          command: |
+            apt-get update
+            apt-get install awscli ansible
       - checkout
       - restore_cache:
           keys: [backend-build]
@@ -85,18 +89,16 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-      # - run:
-      #     name: Install slack deps
-      #     when: on_fail
-      #     command: yum install -y jq
-      # - slack/notify:
-      #     event: fail
-      #     template: basic_fail_1
 
   test-frontend:
     docker:
-      - image: circleci/node:13.8
+      - image: cimg/node:13.8
     steps:
+      - run:
+          name: Install deps
+          command: |
+            apt-get update
+            apt-get install awscli ansible
       - checkout
       - restore_cache:
           keys: [frontend-build]
@@ -105,18 +107,16 @@ jobs:
           command: |
             cd frontend
             npm run test
-      # - run:
-      #     name: Install slack deps
-      #     when: on_fail
-      #     command: yum install -y jq
-      # - slack/notify:
-      #     event: fail
-      #     template: basic_fail_1
 
   test-backend:
     docker:
-      - image: circleci/node:13.8
+      - image: cimg/node:13.8
     steps:
+      - run:
+          name: Install deps
+          command: |
+            apt-get update
+            apt-get install awscli ansible
       - checkout
       - restore_cache:
           keys: [backend-build]
@@ -125,18 +125,16 @@ jobs:
           command: |
             cd backend
             npm run test
-      # - run:
-      #     name: Install slack deps
-      #     when: on_fail
-      #     command: yum install -y jq
-      # - slack/notify:
-      #     event: fail
-      #     template: basic_fail_1
 
   scan-frontend:
     docker:
-      - image: circleci/node:13.8
+      - image: cimg/node:13.8
     steps:
+      - run:
+          name: Install deps
+          command: |
+            apt-get update
+            apt-get install awscli ansible
       - checkout
       - restore_cache:
           keys: [frontend-build]
@@ -146,18 +144,16 @@ jobs:
             cd frontend
             npm i
             npm audit --audit-level=critical
-      - run:
-          name: Install slack deps
-          when: on_fail
-          command: yum install -y jq
-      # - slack/notify:
-      #     event: fail
-      #     template: basic_fail_1
 
   scan-backend:
     docker:
-      - image: circleci/node:13.8
+      - image: cimg/node:13.8
     steps:
+      - run:
+          name: Install deps
+          command: |
+            apt-get update
+            apt-get install awscli ansible
       - checkout
       - restore_cache:
           keys: [backend-build]
@@ -167,19 +163,16 @@ jobs:
             cd backend
             npm i
             npm audit --audit-level=critical
-      # - run:
-      #     name: Install slack deps
-      #     when: on_fail
-      #     command: yum install -y jq
-      # - slack/notify:
-      #     event: fail
-      #     template: basic_fail_1
 
   deploy-infrastructure:
     docker:
-      - image: amazon/aws-cli
+      - image: cimg/node:13.8
     steps:
-      - run: yum install -y tar gzip jq
+      - run:
+          name: Install deps
+          command: |
+            apt-get update
+            apt-get install awscli ansible
       - checkout
       - run:
           name: Ensure back-end infrastructure exists
@@ -210,18 +203,16 @@ jobs:
           paths:
             - inventory.txt
       - destroy-environment
-      # - run:
-      #     name: Install slack deps
-      #     when: on_fail
-      #     command: yum install -y jq
-      # - slack/notify:
-      #     event: fail
-      #     template: basic_fail_1
 
   configure-infrastructure:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: cimg/node:13.8
     steps:
+      - run:
+          name: Install deps
+          command: |
+            apt-get update
+            apt-get install awscli ansible
       - checkout
       - attach_workspace:
           at: ~/
@@ -236,19 +227,17 @@ jobs:
       - run:
           name: Configure server
           command: ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml
-      # - destroy-environment
-      # - run:
-      #     name: Install slack deps
-      #     when: on_fail
-      #     command: apk add --update curl jq
-      # - slack/notify:
-      #     event: fail
-      #     template: basic_fail_1
+      - destroy-environment
 
   run-migrations:
     docker:
-      - image: circleci/node:13.8
+      - image: cimg/node:13.8
     steps:
+      - run:
+          name: Install deps
+          command: |
+            apt-get update
+            apt-get install awscli ansible
       - checkout
       - run:
           name: Run migrations
@@ -263,21 +252,19 @@ jobs:
             then
               curl -H "Content-Type: text/plain" -H "token: f9de6f8d-265f-462f-a766-4fb174338787" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             fi
-      - run:
-          name: Install deps to remove environemt
-          command: |
-            sudo apt-get update
-            sudo apt-get install awscli
       - destroy-environment
-      # - slack/notify:
-      #     event: fail
-      #     template: basic_fail_1
+      - revert-migrations
 
   # Job to use a node image to build both the front and backend for later stages
   build-deployment:
     docker:
-      - image: circleci/node:13.8
+      - image: cimg/node:13.8
     steps:
+      - run:
+          name: Install deps
+          command: |
+            apt-get update
+            apt-get install awscli ansible
       - checkout
       - attach_workspace:
           at: ~/
@@ -316,25 +303,18 @@ jobs:
           paths:
             - server.tar.gz
             - ui.tar.gz
-      - run:
-          name: Install deps to remove environemt
-          command: |
-            sudo apt-get update
-            sudo apt-get install awscli
       - destroy-environment
-      # - run:
-      #     name: Install slack deps
-      #     when: on_fail
-      #     command: yum install -y jq
-      # - slack/notify:
-      #     event: fail
-      #     template: basic_fail_1
+      - revert-migrations
 
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli
+      - image: cimg/node:13.8
     steps:
-      - run: yum install -y tar gzip
+      - run:
+          name: Install deps
+          command: |
+            apt-get update
+            apt-get install awscli ansible
       - attach_workspace:
           at: ~/
       - run:
@@ -345,26 +325,22 @@ jobs:
             ls
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment
-      # - run:
-      #     name: Install slack deps
-      #     when: on_fail
-      #     command: yum install -y jq
-      # - slack/notify:
-      #     event: fail
-      #     template: basic_fail_1
+      - revert-migrations
 
   deploy-backend:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: cimg/node:13.8
     steps:
+      - run:
+          name: Install deps
+          command: |
+            apt-get update
+            apt-get install awscli ansible
       - checkout
       - attach_workspace:
           at: ~/
       - add_ssh_keys:
           fingerprints: ["e4:2b:d9:f9:33:df:41:d0:9a:86:17:f3:00:a4:aa:74"]
-      - run:
-          name: Install dependencies
-          command: apk add --update ansible
       - run:
           name: Deploy backend
           command: |
@@ -373,23 +349,18 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat ~/inventory.txt
             ansible-playbook -i ~/inventory.txt deploy-backend.yml
-      # - destroy-environment
-      # - run:
-      #     name: Install slack deps
-      #     when: on_fail
-      #     command: apk add --update curl jq
-      # - slack/notify:
-      #     event: fail
-      #     template: basic_fail_1
+      - destroy-environment
+      - revert-migrations
 
   smoke-test:
     docker:
-      - image: alpine:3.15
+      - image: cimg/node:13.8
     steps:
       - run:
-          name: Install dependencies
+          name: Install deps
           command: |
-            apk add --update curl gzip tar
+            apt-get update
+            apt-get install awscli ansible
       - attach_workspace:
           at: ~/
       - run:
@@ -423,11 +394,8 @@ jobs:
               sleep $backoff
             done
             return 1
-      - run:
-          name: install aws-cli
-          when: on_fail
-          command: apk add --update aws-cli
       - destroy-environment
+      - revert-migrations
 
   # cloudfront-update:
   #   docker:
