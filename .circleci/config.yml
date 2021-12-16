@@ -188,7 +188,10 @@ jobs:
           fingerprints: ["e4:2b:d9:f9:33:df:41:d0:9a:86:17:f3:00:a4:aa:74"]
       - run:
           name: Configure server
-          command: ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml
+          command: |
+            cd .circleci/ansible
+            ls
+            ansible-playbook -i ~/inventory.txt configure-server.yml
       - destroy-environment
 
   run-migrations:
