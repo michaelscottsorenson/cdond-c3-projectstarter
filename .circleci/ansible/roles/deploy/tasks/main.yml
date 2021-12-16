@@ -1,6 +1,6 @@
-
+---
 - name: Unarchive server files
-  ansible.builtin.unarchive:
+  unarchive:
     src: files/server.tar.gz
     dest: ~/
 
