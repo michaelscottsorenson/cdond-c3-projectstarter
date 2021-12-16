@@ -12,5 +12,11 @@
     - ansible_host_key_checking: false
     - ansible_stdout_callback: yaml
 
+  pre_tasks:
+    - name: "wait up to 600 seconds for the target to become ready"
+      wait_for_connection:
+        delay: 30
+        timeout: 600
+
   roles:
     - configure-server
