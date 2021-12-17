@@ -1,0 +1,68 @@
+Description: >
+  Setup Prometheus Monitoring
+
+Resources:
+  Prometheus:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: "ami-083654bd07b5da81d"
+      InstanceType: "t2.micro"
+      BlockDeviceMappings:
+      - DeviceName: "/dev/sdk"
+        Ebs:
+          VolumeSize: '1'
+      KeyName: udacity
+      SecurityGroupIds:
+        - !Ref PrometheusSG
+
+  # PrometheusNodeExporter:
+  #   Type: AWS::EC2::Instance
+  #   Properties:
+  #     ImageId: "ami-083654bd07b5da81d"
+  #     InstanceType: "t2.micro"
+  #     BlockDeviceMappings:
+  #     - DeviceName: "/dev/sdk"
+  #       Ebs:
+  #         VolumeSize: '1'
+  #     KeyName: udacity
+  #     SecurityGroupIds:
+  #       - !Ref PrometheusNodeExporterSG
+
+  PrometheusSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: "prometheus-ingress-sg"
+      GroupDescription: "exposes the ports for the prometheus application"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          FromPort: 22
+          ToPort: 22
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          FromPort: 9090
+          ToPort: 9090
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          FromPort: 9093
+          ToPort: 9093
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          FromPort: 9100
+          ToPort: 9100
+          ## Attempting to put both prometheus and the node exporter on the same server
+
+  # PrometheusNodeExporterSG:
+  #   Type: AWS::EC2::SecurityGroup
+  #   Properties:
+  #     GroupName: "prometheus-node-exporter-ingress-sg"
+  #     GroupDescription: "exposes the ports for the prometheus node exporter application"
+  #     SecurityGroupIngress:
+  #       - IpProtocol: tcp
+  #         CidrIp: 0.0.0.0/0
+  #         FromPort: 22
+  #         ToPort: 22
+  #       - IpProtocol: tcp
+  #         CidrIp: 0.0.0.0/0
+  #         FromPort: 9100
+  #         ToPort: 9100

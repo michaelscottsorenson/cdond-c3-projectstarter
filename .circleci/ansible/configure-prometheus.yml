@@ -1,0 +1,18 @@
+---
+
+- name: "Install and start prometheus"
+  hosts: monitor
+  user: ubuntu
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: false
+
+  pre_tasks:
+    - name: "wait up to 600 seconds for the target to become ready"
+      wait_for_connection:
+        delay: 30
+        timeout: 600
+
+  roles:
+    - configure-prometheus
