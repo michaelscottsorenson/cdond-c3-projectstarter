@@ -12,6 +12,9 @@ Resources:
         Ebs:
           VolumeSize: '1'
       KeyName: udacity
+      Tags:
+        - Key: app
+          Value: prometheus
       SecurityGroupIds:
         - !Ref PrometheusSG
 

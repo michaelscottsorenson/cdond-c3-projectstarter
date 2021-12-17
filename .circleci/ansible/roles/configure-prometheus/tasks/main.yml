@@ -1,6 +1,6 @@
 - name: "Add Prometheus User"
   user:
-    name: Prometheus
+    name: prometheus
     create_home: no
 
 - name: "install prometheus."
@@ -41,7 +41,13 @@
     remote_src: yes
     mode: '0777'
 
-- name: "add prometheus configuration."
+- name: "add /etc/prometheus/prometheus.yml"
+  become: true
+  copy:
+    src: prometheus.yml
+    dest: /etc/prometheus/prometheus.yml
+
+- name: "add systemd prometheus configuration."
   become: true
   copy:
     src: prometheus.service
