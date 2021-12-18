@@ -155,6 +155,14 @@ jobs:
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
+          name: Ensure monitoring infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/monitoring.yml \
+              --tags project=udapeople \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+      - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
@@ -163,12 +171,17 @@ jobs:
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
-          name: Create inventory file with the backend IP
+          name: Create inventory file with the backend and monitoring IP
           command: |
             echo "[web]" > ~/inventory.txt && \
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --output text >> ~/inventory.txt
+            echo "[monitor]" > ~/inventory.txt && \
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:app,Values=prometheus" \
               --output text >> ~/inventory.txt
       - persist_to_workspace:
           root: ~/
@@ -191,6 +204,11 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i ~/inventory.txt configure-server.yml
+      - run:
+          name: Configure node exporter
+          command: |
+            cd .circleci/ansible
+            ansible-playbook -i ~/inventory.txt configure-prometheus-node-exporter.yml
       - destroy-environment
 
   run-migrations:

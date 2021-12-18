@@ -1,0 +1,18 @@
+---
+
+- name: "Update the web server IP address in the scrape config"
+  blockinfile:
+    path: /etc/prometheus/prometheus.yml
+    block: |2
+        - job_name: 'web server'
+          static_configs:
+            - targets:
+              {% for IP in groups['web'] %}- '{{ IP }}:9100'{% endfor %}
+
+- name: "enable prometheus service"
+  become: true
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: prometheus
+    enabled: yes

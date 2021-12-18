@@ -20,3 +20,9 @@ aws ec2 describe-instances \
 ```bash
 ansible-playbook --private-key udacity.pem -i .circleci/ansible/inventory.txt .circleci/ansible/configure-prometheus.yml
 ```
+
+## Configure node exporter
+
+```bash
+ansible-playbook --private-key udacity.pem -i .circleci/ansible/inventory.txt .circleci/ansible/configure-prometheus-node-exporter.yml
+```

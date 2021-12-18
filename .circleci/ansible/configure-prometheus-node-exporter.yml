@@ -1,0 +1,35 @@
+---
+
+- name: "Install and configure node exporter on the web server"
+  hosts: web
+  user: ubuntu
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: false
+
+  pre_tasks:
+    - name: "wait up to 600 seconds for the target to become ready"
+      wait_for_connection:
+        delay: 30
+        timeout: 600
+
+  roles:
+    - configure-prometheus-node-exporter
+
+- name: "Update prometheus"
+  hosts: monitor
+  user: ubuntu
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: false
+
+  pre_tasks:
+    - name: "wait up to 600 seconds for the target to become ready"
+      wait_for_connection:
+        delay: 5
+        timeout: 600
+
+  roles:
+    - update-prometheus-scrape-config
