@@ -196,11 +196,6 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i ~/inventory.txt configure-server.yml
-      - run:
-          name: Configure node exporter
-          command: |
-            cd .circleci/ansible
-            ansible-playbook -i ~/inventory.txt configure-prometheus-node-exporter.yml
       - destroy-environment
 
   run-migrations:
@@ -351,6 +346,24 @@ jobs:
       - destroy-environment
       - revert-migrations
 
+  configure-monitoring:
+    docker:
+      - image: cimg/node:13.8
+    steps:
+      - install-dependencies
+      - checkout
+      - attach_workspace:
+          at: ~/
+      - add_ssh_keys:
+          fingerprints: ["e4:2b:d9:f9:33:df:41:d0:9a:86:17:f3:00:a4:aa:74"]
+      - run:
+          name: Configure node exporter
+          command: |
+            cat ~/inventory.txt
+            cd .circleci/ansible
+            ansible-playbook -i ~/inventory.txt configure-prometheus-node-exporter.yml
+      - destroy-environment
+
   # cloudfront-update:
   #   docker:
   #     # Docker image here that supports AWS CLI
@@ -440,6 +453,8 @@ workflows:
           requires: [run-migrations, build-deployment]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
+      - configure-monitoring:
+          requires: [smoke-test]
       # - cloudfront-update:
       #     requires: [smoke-test]
       # - cleanup:
