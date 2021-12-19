@@ -362,7 +362,7 @@ jobs:
             cat ~/inventory.txt
             cd .circleci/ansible
             ansible-playbook -i ~/inventory.txt configure-prometheus-node-exporter.yml
-      - destroy-environment
+      # - destroy-environment
 
   # cloudfront-update:
   #   docker:
