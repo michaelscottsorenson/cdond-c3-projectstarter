@@ -388,10 +388,11 @@ jobs:
       - run:
           name: Get stacks to be removed
           command: |
-            export STACKS = $(aws cloudformation describe-stacks --query 'Stacks[*].StackName' | \
+            export STACKS=$(aws cloudformation describe-stacks --query 'Stacks[*].StackName' | \
                 jq -r '.[]' | \
                 grep "udapeople-" | \
                 grep -v "${CIRCLE_WORKFLOW_ID:0:7}")
+            echo "Stacks to cleanup\n$STACKS"
       - run:
           name: Remove old frontends
           command: |
