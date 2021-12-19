@@ -183,7 +183,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: cimg/node:13.8
+      - image: cimg/base:stable-20.04
     steps:
       - install-dependencies
       - checkout
@@ -286,7 +286,7 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: cimg/node:13.8
+      - image: cimg/base:stable-20.04
     steps:
       - install-dependencies
       - checkout
@@ -361,9 +361,8 @@ jobs:
           command: |
             cat ~/inventory.txt
             cd .circleci/ansible
-            ls
             ansible-playbook -i ~/inventory.txt configure-prometheus-node-exporter.yml
-      # - destroy-environment
+      - destroy-environment
 
   # cloudfront-update:
   #   docker:
