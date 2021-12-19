@@ -386,25 +386,20 @@ jobs:
     steps:
       - install-dependencies
       - run:
-          name: Get stacks to be removed
+          name: Remove old stacks
           command: |
             export STACKS=$(aws cloudformation describe-stacks --query 'Stacks[*].StackName' | \
                 jq -r '.[]' | \
                 egrep "udapeople-(frontend|backend)-" | \
                 grep -v "${CIRCLE_WORKFLOW_ID:0:7}")
-            echo "Stacks to cleanup\n$STACKS"
-      - run:
-          name: Remove old frontends
-          command: |
+            echo "$STACKS"
             export frontends=$(echo $STACKS | grep "frontend")
             for frontend in $frontends; do
+              echo "removing stack: $frontend"
               ID=$(echo "$frontend" | tr -d "udapeople-frontend-")
               aws s3 rb "s3://udapeople-${ID}" --force
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${ID}"
             done
-      - run:
-          name: Remove old backends
-          command: |
             echo $STACKS | grep "backend" | xargs -I _ aws cloudformation delete-stack --stack-name _
 
 workflows:
