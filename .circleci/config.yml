@@ -170,7 +170,7 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text >> ~/inventory.txt
-            echo "[monitor]" > ~/inventory.txt && \
+            echo "[monitor]" >> ~/inventory.txt && \
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:app,Values=prometheus" \
