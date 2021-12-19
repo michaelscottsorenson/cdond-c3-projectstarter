@@ -390,7 +390,7 @@ jobs:
           command: |
             export STACKS=$(aws cloudformation describe-stacks --query 'Stacks[*].StackName' | \
                 jq -r '.[]' | \
-                grep "udapeople-" | \
+                egrep "udapeople-(frontend|backend)-" | \
                 grep -v "${CIRCLE_WORKFLOW_ID:0:7}")
             echo "Stacks to cleanup\n$STACKS"
       - run:
