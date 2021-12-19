@@ -15,7 +15,7 @@
   pre_tasks:
     - name: "wait up to 600 seconds for the target to become ready"
       wait_for_connection:
-        delay: 30
+        delay: 1
         timeout: 600
 
   roles:
