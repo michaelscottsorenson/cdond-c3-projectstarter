@@ -398,14 +398,18 @@ jobs:
               # Clean up frontend stack
               if [[ $stack =~ udapeople-frontend-.* ]]
               then
+                echo "Removing frontend stack: $stack"
                 ID=$(echo "$stack" | tr -d "udapeople-frontend-")
-                aws s3 rb "s3://udapeople-${ID}" --force
+                BUCKET_URL="s3://udapeople-${ID}"
+                echo "Removing bucket: $BUCKET_URL"
+                aws s3 rb $BUCKET_URL --force
                 aws cloudformation delete-stack --stack-name "udapeople-frontend-${ID}"
               fi
 
               # Clean up backend stack
               if [[ $stack =~ udapeople-backend-.* ]]
               then
+                echo "Removing backend stack: $stack"
                 aws cloudformation delete-stack --stack-name $stack
               fi
             done
