@@ -393,14 +393,22 @@ jobs:
                 egrep "udapeople-(frontend|backend)-" | \
                 grep -v "${CIRCLE_WORKFLOW_ID:0:7}")
             echo "$STACKS"
-            export frontends=$(echo $STACKS | grep "frontend")
-            for frontend in $frontends; do
-              echo "removing stack: $frontend"
-              ID=$(echo "$frontend" | tr -d "udapeople-frontend-")
-              aws s3 rb "s3://udapeople-${ID}" --force
-              aws cloudformation delete-stack --stack-name "udapeople-frontend-${ID}"
+            for stack in $STACKS; do
+
+              # Clean up frontend stack
+              if [[ $stack =~ udapeople-frontend-.* ]]
+              then
+                ID=$(echo "$frontend" | tr -d "udapeople-frontend-")
+                aws s3 rb "s3://udapeople-${ID}" --force
+                aws cloudformation delete-stack --stack-name "udapeople-frontend-${ID}"
+              fi
+
+              # Clean up backend stack
+              if [[ $stack =~ udapeople-backend-.* ]]
+              then
+                aws cloudformation delete-stack --stack-name $stack
+              fi
             done
-            echo $STACKS | grep "backend" | xargs -I _ aws cloudformation delete-stack --stack-name _
 
 workflows:
   default:
