@@ -69,3 +69,5 @@ node_modules
 .env
 dist
 *.pem
+
+ALERTS_MANAGER_APP_PASSWORD
