@@ -40,17 +40,6 @@ commands:
               npm run migration:revert
             fi
 
-  # notify-on-failure:
-  #   description: sends a slack message when the pipeline fails
-  #   steps:
-  #     - slack/notify:
-  #         event: fail
-  #         template: basic_fail_1
-  #     ## TODO: I'm not certain I need this.
-  #     # - run:
-  #     #     when: on_fail
-  #     #     command: yum install -y jq
-
 jobs:
   build-frontend:
     docker:
@@ -417,54 +406,30 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend:
-          context:
-            - slack-secrets
-      - build-backend:
-          context:
-            - slack-secrets
+      - build-frontend
+      - build-backend
       - test-frontend:
-          context:
-            - slack-secrets
           requires: [build-frontend]
       - test-backend:
-          context:
-            - slack-secrets
           requires: [build-backend]
       - scan-backend:
-          context:
-            - slack-secrets
           requires: [build-backend]
       - scan-frontend:
-          context:
-            - slack-secrets
           requires: [build-frontend]
       - deploy-infrastructure:
-          context:
-            - slack-secrets
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
               only: [master]
       - configure-infrastructure:
-          context:
-            - slack-secrets
           requires: [deploy-infrastructure]
       - run-migrations:
-          context:
-            - slack-secrets
           requires: [configure-infrastructure]
       - build-deployment:
-          context:
-            - slack-secrets
           requires: [deploy-infrastructure]
       - deploy-frontend:
-          context:
-            - slack-secrets
           requires: [run-migrations, build-deployment]
       - deploy-backend:
-          context:
-            - slack-secrets
           requires: [run-migrations, build-deployment]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
