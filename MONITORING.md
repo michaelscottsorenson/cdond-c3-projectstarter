@@ -30,3 +30,9 @@ Use the email and password from the local file ALERTS_MANAGER_APP_PASSWORD to su
 ```bash
 ansible-playbook --private-key udacity.pem -i .circleci/ansible/inventory.txt .circleci/ansible/configure-prometheus-node-exporter.yml --extra-vars "ALERTS_EMAIL=<EMAIL_HERE> ALERTS_PASSWORD=<PASSWORD_HERE>"
 ```
+
+## Prometheus Graphs
+
+Here is a function to graph the CPU usage of the target node.
+
+> rate(node_cpu_seconds_total[30s]) * 100
