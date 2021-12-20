@@ -1,3 +1,5 @@
+## Install prometheus
+
 - name: "Add Prometheus User"
   user:
     name: prometheus
@@ -16,6 +18,8 @@
     dest: /usr/local/bin/prometheus
     remote_src: yes
     mode: '0777'
+    owner: prometheus
+    group: prometheus
 
 - name: "move promtool binary to /usr/local/bin."
   become: true
@@ -24,6 +28,8 @@
     dest: /usr/local/bin/promtool
     remote_src: yes
     mode: '0777'
+    owner: prometheus
+    group: prometheus
 
 - name: "move consoles directory to /etc/prometheus."
   become: true
@@ -31,7 +37,8 @@
     src: /tmp/prometheus-2.19.0.linux-amd64/consoles
     dest: /etc/prometheus
     remote_src: yes
-    mode: '0777'
+    owner: prometheus
+    group: prometheus
 
 - name: "move console_libraries directory to /etc/prometheus."
   become: true
@@ -39,76 +46,42 @@
     src: /tmp/prometheus-2.19.0.linux-amd64/console_libraries
     dest: /etc/prometheus
     remote_src: yes
-    mode: '0777'
+    owner: prometheus
+    group: prometheus
 
 - name: "add /etc/prometheus/prometheus.yml"
   become: true
   copy:
     src: prometheus.yml
     dest: /etc/prometheus/prometheus.yml
+    group: prometheus
+    owner: prometheus
+
+- name: "add /etc/prometheus/rules.yml"
+  become: true
+  copy:
+    src: rules.yml
+    dest: /etc/prometheus/rules.yml
+    group: prometheus
+    owner: prometheus
+
+- name: "creates /var/lib/prometheus directory"
+  become: true
+  file:
+    path: /var/lib/prometheus
+    state: directory
+    group: prometheus
+    owner: prometheus
 
 - name: "add systemd prometheus configuration."
   become: true
   copy:
     src: prometheus.service
     dest: /etc/systemd/system/
-
-## Change ownership of prometheus directories to the prometheus user
-
-- name: "sudo chown prometheus:prometheus /etc/prometheus"
-  become: true
-  file:
-    path: "/etc/prometheus"
-    owner: prometheus
     group: prometheus
-
-- name: "sudo chown prometheus:prometheus /usr/local/bin/prometheus"
-  become: true
-  file:
-    path: "/usr/local/bin/prometheus"
     owner: prometheus
-    group: prometheus
 
-- name: "sudo chown prometheus:prometheus /usr/local/bin/promtool"
-  become: true
-  file:
-    path: "/usr/local/bin/promtool"
-    owner: prometheus
-    group: prometheus
-
-- name: "sudo chown -R prometheus:prometheus /etc/prometheus/consoles"
-  become: true
-  file:
-    path: "/etc/prometheus/consoles"
-    owner: prometheus
-    group: prometheus
-    recurse: yes
-
-- name: "sudo chown -R prometheus:prometheus /etc/prometheus/console_libraries"
-  become: true
-  file:
-    path: "/etc/prometheus/console_libraries"
-    owner: prometheus
-    group: prometheus
-    recurse: yes
-
-- name: "sudo chown -R prometheus:prometheus /var/lib/prometheus"
-  become: true
-  file:
-    path: "/var/lib/prometheus"
-    owner: prometheus
-    group: prometheus
-    recurse: yes
-
-- name: "enable prometheus service"
-  become: true
-  systemd:
-    state: restarted
-    daemon_reload: yes
-    name: prometheus
-    enabled: yes
-
-# Install alert manager
+## Install alert manager
 
 - name: "install alertmanager"
   unarchive:
@@ -149,6 +122,16 @@
   copy:
     src: alertmanager.service
     dest: /etc/systemd/system/alertmanager.service
+
+## enable systemd services
+
+- name: "enable prometheus service"
+  become: true
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: prometheus
+    enabled: yes
 
 - name: "enable alert manager service"
   become: true

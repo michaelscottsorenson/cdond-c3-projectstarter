@@ -40,4 +40,3 @@ Resources:
           CidrIp: 0.0.0.0/0
           FromPort: 9100
           ToPort: 9100
-          ## Attempting to put both prometheus and the node exporter on the same server

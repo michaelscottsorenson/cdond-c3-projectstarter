@@ -25,6 +25,8 @@ ansible-playbook --private-key udacity.pem -i .circleci/ansible/inventory.txt .c
 
 ## Configure node exporter
 
+Use the email and password from the local file ALERTS_MANAGER_APP_PASSWORD to supply the arguements to `--extra-vars`.
+
 ```bash
-ansible-playbook --private-key udacity.pem -i .circleci/ansible/inventory.txt .circleci/ansible/configure-prometheus-node-exporter.yml
+ansible-playbook --private-key udacity.pem -i .circleci/ansible/inventory.txt .circleci/ansible/configure-prometheus-node-exporter.yml --extra-vars "ALERTS_EMAIL=<EMAIL_HERE> ALERTS_PASSWORD=<PASSWORD_HERE>"
 ```
