@@ -399,7 +399,7 @@ jobs:
               if [[ $stack =~ udapeople-frontend-.* ]]
               then
                 echo "Removing frontend stack: $stack"
-                ID=$(echo "$stack" | tr -d "udapeople-frontend-")
+                ID=$(echo "$stack" | sed 's/udapeople-frontend-//')
                 BUCKET_URL="s3://udapeople-${ID}"
                 echo "Removing bucket: $BUCKET_URL"
                 aws s3 rb $BUCKET_URL --force
