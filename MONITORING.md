@@ -17,6 +17,8 @@ aws ec2 describe-instances \
 
 ## Configure with ansible
 
+This will install prometheus and the alert manager. This is intended to be ran locally to set up the prometheus instance running along side the application deployed from the CircleCI.
+
 ```bash
 ansible-playbook --private-key udacity.pem -i .circleci/ansible/inventory.txt .circleci/ansible/configure-prometheus.yml
 ```
