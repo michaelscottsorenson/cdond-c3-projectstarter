@@ -398,7 +398,7 @@ jobs:
               # Clean up frontend stack
               if [[ $stack =~ udapeople-frontend-.* ]]
               then
-                ID=$(echo "$frontend" | tr -d "udapeople-frontend-")
+                ID=$(echo "$stack" | tr -d "udapeople-frontend-")
                 aws s3 rb "s3://udapeople-${ID}" --force
                 aws cloudformation delete-stack --stack-name "udapeople-frontend-${ID}"
               fi
