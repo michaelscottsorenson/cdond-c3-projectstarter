@@ -380,26 +380,27 @@ jobs:
             export ID="${CIRCLE_WORKFLOW_ID:0:7}"
             echo "WorkflowID: $ID"
 
-            export LIST_STACKS="$(aws cloudformation --region us-east-1 list-stacks --stack-status-filter CREATE_COMPLETE)"
+            export LIST_STACKS="$(aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE)"
             echo "List Stacks Response..."
             echo $LIST_STACKS
 
-            export CURRENT_STACKS="$( echo $LIST_STACKS | \
+            echo $LIST_STACKS | \
               jq -rc '.StackSummaries[]' | \
               egrep 'udapeople-(backend|frontend)-' | \
-              jq -rc '{ StackName: .StackName, CreationTime: .CreationTime }')"
+              jq -rc '{ StackName: .StackName, CreationTime: .CreationTime }' > CURRENT_STACKS.json
             echo "Current Stacks..."
-            echo "$CURRENT_STACKS"
+            cat CURRENT_STACKS.json
+            wc -l CURRENT_STACKS.json
 
-            export TIMESTAMP="$(echo $CURRENT_STACKS | \
+            export TIMESTAMP="$(cat CURRENT_STACKS.json | \
               grep "$ID" | \
               jq -r '.CreationTime' | \
               sort | head -n 1)"
             echo "Earliest Creation Timestamp for this Workflow..."
             echo "$TIMESTAMP"
 
-            export CLEANUP_STACKS=$(echo $CURRENT_STACKS | \
-              jq -r --arg timestamp "$TIMESTAMP" 'select( .CreationTime < $timestamp) | .StackName')
+            export CLEANUP_STACKS=$(echo CURRENT_STACKS.json | \
+              jq -r --arg timestamp "$TIMESTAMP" 'select( .CreationTime < $timestamp) | .StackName)'
             echo "Stacks to be Removed..."
             echo "$CLEANUP_STACKS"
 
