@@ -221,7 +221,7 @@ jobs:
       - run:
           name: Build frontend objects
           command: |
-            export BACKEND_IP=$(tail -n 1 ~/inventory.txt)
+            export BACKEND_IP=$(cat ~/inventory.txt | grep -A 1 "\[web\]$" | tail -n 1)
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             echo $API_URL
             cat frontend/.env
