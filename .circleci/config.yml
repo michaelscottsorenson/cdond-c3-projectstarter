@@ -394,7 +394,7 @@ jobs:
             echo "stacks to be removed..."
             echo "$CLEANUP_STACKS"
 
-            for stack in $CLEANUPSTACKS do
+            for stack in $CLEANUPSTACKS; do
               # Clean up frontend stack
               if [[ $stack =~ udapeople-frontend-.* ]]
               then
