@@ -375,25 +375,44 @@ jobs:
     steps:
       - install-dependencies
       - run:
-          name: Remove previous deployment
+          name: Remove all udapeople stacks older than current deployment
           command: |
-            aws cloudformation list-exports
-            export OldWorkflowID=$(aws cloudformation \
-              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-              --no-paginate --output text)
+            export CURRENT_STACKS="$(aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE | \
+              jq -rc '.StackSummaries[]' | \
+              egrep 'udapeople-(backend|frontend)-' | \
+              jq -rc '{ StackName: .StackName, CreationTime: .CreationTime }')"
 
-            echo OldWorkflowID: "${OldWorkflowID}"
-            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
+            export TIMESTAMP="$(echo $CURRENT_STACKS | \
+              grep "${CIRCLE_WORKFLOW_ID:0:7}" | \
+              jq -r '.CreationTime' | \
+              sort | head -n 1)"
 
-            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
-            then
-              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
-              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
-              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
-            else
-              echo "Have the current ID $OldWorkflowID. Cannot remove the current stack"
-              exit 1
-            fi
+            export CLEANUP_STACKS=$(echo $CURRENT_STACKS | \
+              jq -r --arg timestamp "$TIMESTAMP" 'select( .CreationTime < $timestamp) | .StackName')
+
+            echo "WorkflowID: ${CIRCLE_WORKFLOW_ID:0:7}"
+            echo "stacks to be removed..."
+            echo "$CLEANUP_STACKS"
+
+            for stack in $CLEANUPSTACKS do
+              # Clean up frontend stack
+              if [[ $stack =~ udapeople-frontend-.* ]]
+              then
+                echo "Removing frontend stack: $stack"
+                ID=$(echo "$stack" | sed 's/udapeople-frontend-//')
+                BUCKET_URL="s3://udapeople-${ID}"
+                echo "Removing bucket: $BUCKET_URL"
+                aws s3 rm $BUCKET_URL --recursive
+                aws cloudformation delete-stack --stack-name "udapeople-frontend-${ID}"
+              fi
+
+              # Clean up backend stack
+              if [[ $stack =~ udapeople-backend-.* ]]
+              then
+                echo "Removing backend stack: $stack"
+                aws cloudformation delete-stack --stack-name $stack
+              fi
+            done
 
 workflows:
   default:
