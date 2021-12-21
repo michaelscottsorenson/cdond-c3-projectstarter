@@ -131,7 +131,7 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      - image: cimg/node:13.8
+      - image: cimg/base:stable-20.04
     steps:
       - install-dependencies
       - checkout
@@ -258,7 +258,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: cimg/node:13.8
+      - image: cimg/base:stable-20.04
     steps:
       - install-dependencies
       - attach_workspace:
@@ -377,21 +377,26 @@ jobs:
       - run:
           name: Remove all udapeople stacks older than current deployment
           command: |
-            export CURRENT_STACKS="$(aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE | \
+            export ID="${CIRCLE_WORKFLOW_ID:0:7}"
+            echo "WorkflowID: $ID"
+
+            export CURRENT_STACKS="$(aws cloudformation --region us-east-1 list-stacks --stack-status-filter CREATE_COMPLETE | \
               jq -rc '.StackSummaries[]' | \
               egrep 'udapeople-(backend|frontend)-' | \
               jq -rc '{ StackName: .StackName, CreationTime: .CreationTime }')"
+            echo "Current Stacks..."
+            echo "$CURRENT_STACKS"
 
             export TIMESTAMP="$(echo $CURRENT_STACKS | \
-              grep "${CIRCLE_WORKFLOW_ID:0:7}" | \
+              grep "$ID" | \
               jq -r '.CreationTime' | \
               sort | head -n 1)"
+            echo "Earliest Creation Timestamp for this Workflow..."
+            echo "$TIMESTAMP"
 
             export CLEANUP_STACKS=$(echo $CURRENT_STACKS | \
               jq -r --arg timestamp "$TIMESTAMP" 'select( .CreationTime < $timestamp) | .StackName')
-
-            echo "WorkflowID: ${CIRCLE_WORKFLOW_ID:0:7}"
-            echo "stacks to be removed..."
+            echo "Stacks to be Removed..."
             echo "$CLEANUP_STACKS"
 
             for stack in $CLEANUPSTACKS; do
