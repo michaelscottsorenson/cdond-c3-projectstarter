@@ -400,7 +400,7 @@ jobs:
             echo "$TIMESTAMP"
 
             export CLEANUP_STACKS=$(echo CURRENT_STACKS.json | \
-              jq -r --arg timestamp "$TIMESTAMP" 'select( .CreationTime < $timestamp) | .StackName)'
+              jq -r --arg timestamp "$TIMESTAMP" 'select( .CreationTime < $timestamp ) | .StackName')
             echo "Stacks to be Removed..."
             echo "$CLEANUP_STACKS"
 
