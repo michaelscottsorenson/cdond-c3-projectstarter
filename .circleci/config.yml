@@ -408,7 +408,7 @@ jobs:
             echo "Stacks to be Removed..."
             echo "$CLEANUP_STACKS"
 
-            for stack in $CLEANUPSTACKS; do
+            for stack in $CLEANUP_STACKS; do
               # Clean up frontend stack
               if [[ $stack =~ udapeople-frontend-.* ]]
               then
@@ -441,26 +441,27 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - build-deployment:
-          requires: [deploy-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations, build-deployment]
-      - deploy-backend:
-          requires: [run-migrations, build-deployment]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
-      - configure-monitoring:
-          requires: [cloudfront-update]
-      - cleanup:
-          requires: [configure-monitoring]
+      - cleanup
+      #- deploy-infrastructure:
+      #    requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      #    filters:
+      #      branches:
+      #        only: [master]
+      #- configure-infrastructure:
+      #    requires: [deploy-infrastructure]
+      #- run-migrations:
+      #    requires: [configure-infrastructure]
+      #- build-deployment:
+      #    requires: [deploy-infrastructure]
+      #- deploy-frontend:
+      #    requires: [run-migrations, build-deployment]
+      #- deploy-backend:
+      #    requires: [run-migrations, build-deployment]
+      #- smoke-test:
+      #    requires: [deploy-backend, deploy-frontend]
+      #- cloudfront-update:
+      #    requires: [smoke-test]
+      #- configure-monitoring:
+      #    requires: [cloudfront-update]
+      #- cleanup:
+      #    requires: [configure-monitoring]
