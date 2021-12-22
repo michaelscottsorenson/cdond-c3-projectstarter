@@ -384,14 +384,17 @@ jobs:
             echo "List Stacks Response..."
             echo $LIST_STACKS
 
+            ## Output udapeople stacks to a file
+            ## This is output to a file to keep the entries on separate lines so they are able to be grepped
             echo $LIST_STACKS | \
-              jq -rc '.StackSummaries[]' | \
+              jq -c '.StackSummaries[]' | \
               egrep 'udapeople-(backend|frontend)-' | \
-              jq -rc '{ StackName: .StackName, CreationTime: .CreationTime }' > CURRENT_STACKS.json
+              jq -c '{ StackName: .StackName, CreationTime: .CreationTime }' > CURRENT_STACKS.json
             echo "Current Stacks..."
             cat CURRENT_STACKS.json
             wc -l CURRENT_STACKS.json
 
+            ## Create a variable of the earliest timestamp of the currently deployed stacks
             export TIMESTAMP="$(cat CURRENT_STACKS.json | \
               grep "$ID" | \
               jq -r '.CreationTime' | \
@@ -399,7 +402,8 @@ jobs:
             echo "Earliest Creation Timestamp for this Workflow..."
             echo "$TIMESTAMP"
 
-            export CLEANUP_STACKS=$(echo CURRENT_STACKS.json | \
+            ## Create a list of all of the stacks that were created before the current stacks
+            export CLEANUP_STACKS=$(cat CURRENT_STACKS.json | \
               jq -r --arg timestamp "$TIMESTAMP" 'select( .CreationTime < $timestamp ) | .StackName')
             echo "Stacks to be Removed..."
             echo "$CLEANUP_STACKS"
