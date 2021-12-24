@@ -59,7 +59,7 @@
 
 - name: "add /etc/prometheus/rules.yml"
   become: true
-  copy:
+  template:
     src: rules.yml
     dest: /etc/prometheus/rules.yml
     group: prometheus
